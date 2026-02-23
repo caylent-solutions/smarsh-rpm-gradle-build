@@ -2,7 +2,7 @@
 // RPM Build Conventions
 // ============================================================================
 // Provides: Java compilation, Spring Boot plugin, dependency management,
-// repository definitions, and distribution task management.
+// and repository definitions.
 //
 // Configuration is read from .rpmenv via the _rpmProp closure:
 //   JAVA_VERSION     - Java source/target version (required)
@@ -64,6 +64,3 @@ dependencyManagement {
     }
 }
 
-// Disable distribution tasks (not needed for Spring Boot apps)
-tasks.named('distTar') { enabled = false }
-tasks.named('distZip') { enabled = false }
