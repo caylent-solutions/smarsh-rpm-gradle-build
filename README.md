@@ -2,18 +2,28 @@
 
 RPM package providing Java compilation conventions, Spring Boot plugin configuration, repository definitions, and dependency management BOMs.
 
-## Provided Configuration
+## What This Package Does
 
-- Java source/target compatibility (version from `.rpmenv`)
-- Spring Boot plugin with `buildInfo()`
-- Spring dependency management plugin
-- Repository definitions: mavenCentral, mavenLocal, optional Artifactory
-- Centralized dependency management BOMs (Spring Cloud, Jackson, etc.)
-- Distribution task disabling (distTar, distZip)
+Applies foundational build configuration that most Java/Spring Boot projects share: Java version, Spring Boot and dependency management plugins, Maven repository definitions, and centralized framework dependency versions. Projects consume this package so their `build.gradle` only contains project-specific dependencies.
+
+## Tasks Provided
+
+| Task | Description |
+|---|---|
+| `build` | Compile, test, and assemble the project (standard Gradle lifecycle) |
+| `bootJar` | Build executable Spring Boot JAR |
+| `bootBuildInfo` | Generate `build-info.properties` for Spring Boot Actuator |
+
+## Configs and Assets
+
+| File | Purpose | Synced To |
+|---|---|---|
+| `build-conventions.gradle` | Plugin application, Java version, repos, dependency management | `.packages/smarsh-rpm-gradle-build/` |
+| `rpm-manifest.properties` | Declares external plugin dependencies for buildscript classpath | `.packages/smarsh-rpm-gradle-build/` |
 
 ## External Plugin Dependencies
 
-Declared in `rpm-manifest.properties`:
+Declared in `rpm-manifest.properties` (resolved by the project's `buildscript {}` block):
 - `org.springframework.boot:spring-boot-gradle-plugin:3.5.6`
 - `io.spring.gradle:dependency-management-plugin:1.1.6`
 
