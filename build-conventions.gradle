@@ -1,0 +1,58 @@
+// ============================================================================
+// RPM Build Conventions
+// ============================================================================
+// Provides: Java 17 compilation, Spring Boot plugin, dependency management,
+// repository definitions, and distribution task management.
+// ============================================================================
+
+def PKG_DIR = project.ext.get('_rpmCurrentPkgDir')
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+// Repository definitions
+repositories {
+    mavenCentral()
+    mavenLocal()
+    // Optional private repository - set rpm.artifactory.url in gradle.properties
+    if (project.hasProperty('rpm.artifactory.url')) {
+        maven {
+            name 'artifactory'
+            url project.property('rpm.artifactory.url')
+        }
+    }
+}
+
+// Framework-level dependency versions (centralized for consistency across projects)
+ext {
+    set('springCloudVersion', "2023.0.3")
+    set('jacksonVersion', "2.17.2")
+    testcontainersVersion = '1.19.8'
+}
+
+// Common global exclusions
+configurations.all {
+    exclude group: 'org.springframework.data', module: 'spring-data-elasticsearch'
+}
+
+// Dependency management BOMs
+dependencyManagement {
+    dependencies {
+        dependency 'com.squareup.okhttp3:okhttp:4.10.0'
+        dependency 'co.elastic.clients:elasticsearch-java:7.17.3'
+        dependency 'org.elasticsearch.client:elasticsearch-rest-client:7.17.3'
+    }
+    imports {
+        mavenBom "com.fasterxml.jackson:jackson-bom:${jacksonVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        mavenBom "io.pivotal.spring.cloud:spring-cloud-services-dependencies:2.4.1"
+    }
+}
+
+// Disable distribution tasks (not needed for Spring Boot apps)
+tasks.named('distTar') { enabled = false }
+tasks.named('distZip') { enabled = false }
