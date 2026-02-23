@@ -24,8 +24,8 @@ Applies foundational build configuration that most Java/Spring Boot projects sha
 ## External Plugin Dependencies
 
 Declared in `rpm-manifest.properties` (resolved by the project's `buildscript {}` block):
-- `org.springframework.boot:spring-boot-gradle-plugin:3.5.6`
-- `io.spring.gradle:dependency-management-plugin:1.1.6`
+- `org.springframework.boot:spring-boot-gradle-plugin` (dynamic version — auto-updates minor/patch)
+- `io.spring.gradle:dependency-management-plugin` (dynamic version — auto-updates minor/patch)
 
 ## Configuration via `.rpmenv`
 

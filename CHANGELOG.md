@@ -4,10 +4,10 @@
 
 Initial release.
 
-- Java 17 source/target compatibility
-- Spring Boot 3.5.6 plugin
-- Spring dependency management 1.1.6 plugin
+- Java source/target compatibility (version read from .rpmenv JAVA_VERSION)
+- Spring Boot plugin (dynamic version)
+- Spring dependency management plugin (dynamic version)
 - Repository definitions (mavenCentral, mavenLocal, optional Artifactory)
-- Dependency management BOMs (Spring Cloud 2023.0.3, Jackson 2.17.2)
+- Dependency management BOMs (Spring Cloud, Jackson — dynamic versions)
 - Common global exclusions
 - Distribution task disabling
