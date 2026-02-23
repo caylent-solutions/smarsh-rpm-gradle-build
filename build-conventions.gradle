@@ -1,8 +1,13 @@
 // ============================================================================
 // RPM Build Conventions
 // ============================================================================
-// Provides: Java compilation, Spring Boot plugin, dependency management,
-// and repository definitions.
+// Provides: Java compilation, Spring Boot plugin, dependency management
+// plugin, and repository definitions.
+//
+// This package applies plugins and configures the build environment.
+// Dependency versions (BOMs, library pins) are NOT managed here — they
+// belong in each project's build.gradle. This separation ensures RPM
+// package updates cannot break consumers' dependency trees.
 //
 // Configuration is read from .rpmenv via the _rpmProp closure:
 //   JAVA_VERSION     - Java source/target version (required)
@@ -38,28 +43,6 @@ repositories {
             name 'artifactory'
             url artifactoryUrl
         }
-    }
-}
-
-// Framework-level dependency versions (centralized for consistency across projects)
-// Projects can override any version in their own ext {} block.
-ext {
-    set('springCloudVersion', "2023.0.3")
-    set('jacksonVersion', "2.17.2")
-    testcontainersVersion = '1.19.8'
-}
-
-// Dependency management BOMs (project-specific exclusions belong in build.gradle)
-dependencyManagement {
-    dependencies {
-        dependency 'com.squareup.okhttp3:okhttp:4.10.0'
-        dependency 'co.elastic.clients:elasticsearch-java:7.17.3'
-        dependency 'org.elasticsearch.client:elasticsearch-rest-client:7.17.3'
-    }
-    imports {
-        mavenBom "com.fasterxml.jackson:jackson-bom:${jacksonVersion}"
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-        mavenBom "io.pivotal.spring.cloud:spring-cloud-services-dependencies:2.4.1"
     }
 }
 

@@ -1,10 +1,12 @@
 # smarsh-rpm-gradle-build
 
-RPM package providing Java compilation conventions, Spring Boot plugin configuration, repository definitions, and dependency management BOMs.
+RPM package providing Java compilation conventions, Spring Boot plugin configuration, and repository definitions.
 
 ## What This Package Does
 
-Applies foundational build configuration that most Java/Spring Boot projects share: Java version, Spring Boot and dependency management plugins, Maven repository definitions, and centralized framework dependency versions. Projects consume this package so their `build.gradle` only contains project-specific dependencies.
+Applies foundational build configuration that most Java/Spring Boot projects share: Java version, Spring Boot and dependency management plugins, and Maven repository definitions.
+
+This package does NOT manage dependency versions (BOMs, library pins). Dependency version management belongs in each project's `build.gradle`. This separation ensures RPM package updates cannot break consumers' dependency trees.
 
 ## Tasks Provided
 
@@ -18,14 +20,14 @@ Applies foundational build configuration that most Java/Spring Boot projects sha
 
 | File | Purpose | Synced To |
 |---|---|---|
-| `build-conventions.gradle` | Plugin application, Java version, repos, dependency management | `.packages/smarsh-rpm-gradle-build/` |
+| `build-conventions.gradle` | Plugin application, Java version, repository definitions | `.packages/smarsh-rpm-gradle-build/` |
 | `rpm-manifest.properties` | Declares external plugin dependencies for buildscript classpath | `.packages/smarsh-rpm-gradle-build/` |
 
 ## External Plugin Dependencies
 
 Declared in `rpm-manifest.properties` (resolved by the project's `buildscript {}` block):
-- `org.springframework.boot:spring-boot-gradle-plugin` (dynamic version — auto-updates minor/patch)
-- `io.spring.gradle:dependency-management-plugin` (dynamic version — auto-updates minor/patch)
+- `org.springframework.boot:spring-boot-gradle-plugin:3.5.6`
+- `io.spring.gradle:dependency-management-plugin:1.1.6`
 
 ## Configuration via `.rpmenv`
 
@@ -41,11 +43,26 @@ ARTIFACTORY_URL=https://your-company.jfrog.io/libs-release-local
 
 Both values can be overridden by environment variables of the same name.
 
-## Override Dependency Versions
+## Dependency Version Management
 
-Override centralized dependency versions in your `build.gradle`:
+This package applies the `io.spring.dependency-management` plugin but does not import any BOMs or pin any dependency versions. Projects must manage their own dependency versions in `build.gradle`:
+
 ```groovy
 ext {
-    set('jacksonVersion', '2.18.0')
+    set('jacksonVersion', '2.17.2')
+    set('springCloudVersion', '2023.0.3')
+    testcontainersVersion = '1.19.8'
+}
+
+dependencyManagement {
+    dependencies {
+        dependency 'com.squareup.okhttp3:okhttp:4.10.0'
+    }
+    imports {
+        mavenBom "com.fasterxml.jackson:jackson-bom:${jacksonVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
 }
 ```
+
+This approach ensures each project controls its own dependency resolution and RPM package updates cannot introduce version conflicts.
