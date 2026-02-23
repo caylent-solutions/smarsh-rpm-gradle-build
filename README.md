@@ -4,7 +4,7 @@ RPM package providing Java compilation conventions, Spring Boot plugin configura
 
 ## Provided Configuration
 
-- Java 17 source/target compatibility
+- Java source/target compatibility (version from `.rpmenv`)
 - Spring Boot plugin with `buildInfo()`
 - Spring dependency management plugin
 - Repository definitions: mavenCentral, mavenLocal, optional Artifactory
@@ -17,14 +17,23 @@ Declared in `rpm-manifest.properties`:
 - `org.springframework.boot:spring-boot-gradle-plugin:3.5.6`
 - `io.spring.gradle:dependency-management-plugin:1.1.6`
 
-## Project-Specific Configuration
+## Configuration via `.rpmenv`
 
-Set in your project's `gradle.properties` to add a private repository:
+Set these in your project's `.rpmenv` file:
+
 ```properties
-rpm.artifactory.url=https://your-company.jfrog.io/libs-release-local
+# Java source/target version (default: 17)
+JAVA_VERSION=17
+
+# Optional private Maven repository URL (leave empty if not needed)
+ARTIFACTORY_URL=https://your-company.jfrog.io/libs-release-local
 ```
 
-Override dependency versions in your `build.gradle`:
+Both values can be overridden by environment variables of the same name.
+
+## Override Dependency Versions
+
+Override centralized dependency versions in your `build.gradle`:
 ```groovy
 ext {
     set('jacksonVersion', '2.18.0')

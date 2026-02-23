@@ -1,28 +1,36 @@
 // ============================================================================
 // RPM Build Conventions
 // ============================================================================
-// Provides: Java 17 compilation, Spring Boot plugin, dependency management,
+// Provides: Java compilation, Spring Boot plugin, dependency management,
 // repository definitions, and distribution task management.
+//
+// Configuration is read from .rpmenv via the _rpmProp closure:
+//   JAVA_VERSION     - Java source/target version (default: 17)
+//   ARTIFACTORY_URL  - Optional private Maven repository URL
 // ============================================================================
 
 def PKG_DIR = project.ext.get('_rpmCurrentPkgDir')
+def rpmProp = project.ext.get('_rpmProp')
 
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+// Java version from .rpmenv (overridable via JAVA_VERSION environment variable)
+def javaVersion = JavaVersion.toVersion(rpmProp('JAVA_VERSION') ?: '17')
+sourceCompatibility = javaVersion
+targetCompatibility = javaVersion
 
 // Repository definitions
 repositories {
     mavenCentral()
     mavenLocal()
-    // Optional private repository - set rpm.artifactory.url in gradle.properties
-    if (project.hasProperty('rpm.artifactory.url')) {
+    // Optional private repository - set ARTIFACTORY_URL in .rpmenv
+    def artifactoryUrl = rpmProp('ARTIFACTORY_URL')
+    if (artifactoryUrl) {
         maven {
             name 'artifactory'
-            url project.property('rpm.artifactory.url')
+            url artifactoryUrl
         }
     }
 }
@@ -34,12 +42,7 @@ ext {
     testcontainersVersion = '1.19.8'
 }
 
-// Common global exclusions
-configurations.all {
-    exclude group: 'org.springframework.data', module: 'spring-data-elasticsearch'
-}
-
-// Dependency management BOMs
+// Dependency management BOMs (project-specific exclusions belong in build.gradle)
 dependencyManagement {
     dependencies {
         dependency 'com.squareup.okhttp3:okhttp:4.10.0'
