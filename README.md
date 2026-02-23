@@ -32,7 +32,7 @@ Declared in `rpm-manifest.properties` (resolved by the project's `buildscript {}
 Set these in your project's `.rpmenv` file:
 
 ```properties
-# Java source/target version (default: 17)
+# Java source/target version (required — build fails if not set)
 JAVA_VERSION=17
 
 # Optional private Maven repository URL (leave empty if not needed)

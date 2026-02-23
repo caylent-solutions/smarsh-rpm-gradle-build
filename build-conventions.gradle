@@ -5,7 +5,7 @@
 // repository definitions, and distribution task management.
 //
 // Configuration is read from .rpmenv via the _rpmProp closure:
-//   JAVA_VERSION     - Java source/target version (default: 17)
+//   JAVA_VERSION     - Java source/target version (required)
 //   ARTIFACTORY_URL  - Optional private Maven repository URL
 // ============================================================================
 
@@ -16,8 +16,14 @@ apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
-// Java version from .rpmenv (overridable via JAVA_VERSION environment variable)
-def javaVersion = JavaVersion.toVersion(rpmProp('JAVA_VERSION') ?: '17')
+// Java version from .rpmenv (required — no default)
+def javaVersionStr = rpmProp('JAVA_VERSION')
+if (!javaVersionStr) {
+    throw new GradleException(
+        "JAVA_VERSION is not set. Add JAVA_VERSION=<version> to your project's .rpmenv file (e.g., JAVA_VERSION=17)."
+    )
+}
+def javaVersion = JavaVersion.toVersion(javaVersionStr)
 sourceCompatibility = javaVersion
 targetCompatibility = javaVersion
 
@@ -36,23 +42,25 @@ repositories {
 }
 
 // Framework-level dependency versions (centralized for consistency across projects)
+// Uses dynamic versions to allow automatic minor and patch updates.
+// Projects can override any version in their own ext {} block.
 ext {
-    set('springCloudVersion', "2023.0.3")
-    set('jacksonVersion', "2.17.2")
-    testcontainersVersion = '1.19.8'
+    set('springCloudVersion', "2023.+")
+    set('jacksonVersion', "2.+")
+    testcontainersVersion = '1.+'
 }
 
 // Dependency management BOMs (project-specific exclusions belong in build.gradle)
 dependencyManagement {
     dependencies {
-        dependency 'com.squareup.okhttp3:okhttp:4.10.0'
-        dependency 'co.elastic.clients:elasticsearch-java:7.17.3'
-        dependency 'org.elasticsearch.client:elasticsearch-rest-client:7.17.3'
+        dependency 'com.squareup.okhttp3:okhttp:4.+'
+        dependency 'co.elastic.clients:elasticsearch-java:7.+'
+        dependency 'org.elasticsearch.client:elasticsearch-rest-client:7.+'
     }
     imports {
         mavenBom "com.fasterxml.jackson:jackson-bom:${jacksonVersion}"
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-        mavenBom "io.pivotal.spring.cloud:spring-cloud-services-dependencies:2.4.1"
+        mavenBom "io.pivotal.spring.cloud:spring-cloud-services-dependencies:2.+"
     }
 }
 
